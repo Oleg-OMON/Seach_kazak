@@ -14,6 +14,7 @@ from model import user, Kazak
 
 app = FastAPI()
 
+
 @app.exception_handler(ValidationError)
 async def validation_exception_handler(request: Request, exc: ValidationError):
     return JSONResponse(

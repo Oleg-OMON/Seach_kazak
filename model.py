@@ -25,19 +25,5 @@ user = Table(
 )
 
 
-class Kazak(BaseModel):
-    id: int
-    first_name: str
-    last_name: str
-    middle_name: Optional[str]
-    year: Optional[str]
-    fond: Optional[str]
-    rang: Optional[str]
-    city_out: Optional[str]
-    city: str
-    info_db: str
-    info: Optional[str]
-    photo: Optional[str]
-    user_id: Optional[int] = 0
 
 
