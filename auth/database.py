@@ -19,7 +19,7 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     email: str = Column(String(length=320), unique=True, index=True, nullable=False)
     username = Column(String, nullable=False)
     phone_number = Column(String, nullable=False)
-    parents_list = Column(JSON, default=False, nullable=False),
+    parents_list = Column(JSON, default=False, nullable=False)
     registered_at = Column(TIMESTAMP, default=datetime.utcnow)
     hashed_password: str = Column(String(length=1024), nullable=False)
     is_active: bool = Column(Boolean, default=True, nullable=False)
