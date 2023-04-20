@@ -4,25 +4,17 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import ValidationError
 from starlette import status
 from starlette.responses import JSONResponse
-import uuid
 from fastapi import FastAPI
-from fastapi_users import fastapi_users, FastAPIUsers
+from fastapi_users import FastAPIUsers
 from auth.manager import get_user_manager
 from auth.auth import auth_backend
 from auth.schemas import UserRead, UserCreate
-from model import user, Kazak
+from model import user, kazak
 
 app = FastAPI()
 
 
-@app.exception_handler(ValidationError)
-async def validation_exception_handler(request: Request, exc: ValidationError):
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder({"detail": exc.errors()}),
-    )
-
-fastapi_users = FastAPIUsers[user, uuid.UUID](
+fastapi_users = FastAPIUsers[user, int](
     get_user_manager,
     [auth_backend],
 )
@@ -33,11 +25,21 @@ app.include_router(
     tags=["auth"],
 )
 
+
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
     prefix="/auth",
     tags=["auth"],
 )
+
+
+@app.exception_handler(ValidationError)
+async def validation_exception_handler(request: Request, exc: ValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder({"detail": exc.errors()}),
+    )
+
 
 @app.get('/users/{user_id}', response_model=List[user])
 def get_user(user_id: int):
@@ -54,7 +56,7 @@ def get_users():
     return users
 
 
-@app.get('/search_kazak/{last_name}/{city}', response_model=List[Kazak])
+@app.get('/search_kazak/{last_name}/{city}', response_model=List[kazak])
 def get_kazak(last_name: str, city: str):
     """получить казака по имени и населеному пункту"""
     for kazak in kazaks_list:
@@ -84,7 +86,7 @@ def post_kazak(id, first_name,last_name, middle_name,rang,year,fond,city_out,cit
     return kazaks_list
 
 
-@app.get('/kazaks/{kazak_id}', response_model=List[Kazak])
+@app.get('/kazaks/{kazak_id}', response_model=List[kazak])
 def get_kazak_id(kazak_id: int):
     """Получить казака по id"""
     return [kazak for kazak in kazaks_list if kazak.get("id") == kazak_id]
