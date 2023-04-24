@@ -1,4 +1,3 @@
-from typing import List
 from urllib.request import Request
 from fastapi.encoders import jsonable_encoder
 from pydantic import ValidationError
@@ -6,13 +5,14 @@ from starlette import status
 from starlette.responses import JSONResponse
 from fastapi import FastAPI, Depends
 from fastapi_users import FastAPIUsers
-
-from auth.database import User
+from database import User
 from auth.manager import get_user_manager
 from auth.auth import auth_backend
 from auth.schemas import UserRead, UserCreate
-from model import user, kazak
+from auth.models import user
 import sentry_sdk
+
+from src.kazak.router import router as kazaks_router
 
 sentry_sdk.init(
     dsn="https://567aacf038da4b62a6a2c13b4b13c665@o4505046481502208.ingest.sentry.io/4505046484451328",
@@ -29,17 +29,20 @@ fastapi_users = FastAPIUsers[user, int](
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
     prefix="/auth/jwt",
-    tags=["auth"],
+    tags=["Auth"],
 )
 
 
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
     prefix="/auth",
-    tags=["auth"],
+    tags=["Auth"],
 )
 
 current_user = fastapi_users.current_user()
+
+app.include_router(kazaks_router)
+
 
 
 @app.get('/protected-route')
