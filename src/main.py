@@ -5,14 +5,13 @@ from starlette import status
 from starlette.responses import JSONResponse
 from fastapi import FastAPI, Depends
 from fastapi_users import FastAPIUsers
-from database import User
 from auth.manager import get_user_manager
 from auth.auth import auth_backend
 from auth.schemas import UserRead, UserCreate
-from auth.models import user
+from auth.models import user, User
 import sentry_sdk
 
-from src.kazak.router import router as kazaks_router
+from kazak.router import router as kazaks_router
 
 sentry_sdk.init(
     dsn="https://567aacf038da4b62a6a2c13b4b13c665@o4505046481502208.ingest.sentry.io/4505046484451328",

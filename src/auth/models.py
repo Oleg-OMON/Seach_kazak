@@ -1,10 +1,8 @@
 from datetime import datetime
 from sqlalchemy import Table, Column, Integer, String, TIMESTAMP, ForeignKey, Boolean, MetaData
-
-import database
 from kazak.models import kazak
 from fastapi_users.db import SQLAlchemyBaseUserTable
-
+from database import Base
 
 metadata = MetaData()
 
@@ -25,7 +23,7 @@ user = Table(
 )
 
 
-class User(SQLAlchemyBaseUserTable[int], database.Base):
+class User(SQLAlchemyBaseUserTable[int], Base):
     id = Column(Integer, primary_key=True)
     email: str = Column(String(length=320), unique=True, index=True, nullable=False)
     username = Column(String, nullable=False)
