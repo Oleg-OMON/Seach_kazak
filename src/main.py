@@ -1,26 +1,17 @@
-from urllib.request import Request
 from fastapi.encoders import jsonable_encoder
 from pydantic import ValidationError
 from starlette import status
 from starlette.responses import JSONResponse
 from fastapi import FastAPI, Depends
-from fastapi_users import FastAPIUsers
-from auth.manager import get_user_manager
-from auth.auth import auth_backend
+from auth.base_config import auth_backend, fastapi_users, current_user
 from auth.schemas import UserRead, UserCreate
 from auth.models import user, User
-
+from starlette.requests import Request
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-
-
 from redis import asyncio as aioredis
-
-import sentry_sdk
-
 from kazak.router import router as kazaks_router
-
-
+import sentry_sdk
 sentry_sdk.init(
     dsn="https://567aacf038da4b62a6a2c13b4b13c665@o4505046481502208.ingest.sentry.io/4505046484451328",
     traces_sample_rate=1.0,
@@ -28,10 +19,15 @@ sentry_sdk.init(
 
 app = FastAPI()
 
-fastapi_users = FastAPIUsers[user, int](
-    get_user_manager,
-    [auth_backend],
-)
+
+@app.on_event("startup")
+async def startup():
+    redis = await aioredis.from_url("redis://localhost", encoding="utf8", decode_responses=True)
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+
+
+
+
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
@@ -46,9 +42,11 @@ app.include_router(
     tags=["Auth"],
 )
 
-current_user = fastapi_users.current_user()
 
 app.include_router(kazaks_router)
+
+
+
 
 
 @app.get('/protected-route')
@@ -64,10 +62,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
     )
 
 
-@app.on_event("startup")
-async def startup():
-    redis = aioredis.from_url("redis://localhost", encoding="utf8", decode_responses=True)
-    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+
 
 
 

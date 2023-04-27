@@ -1,9 +1,11 @@
 from typing import Optional
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, IntegerIDMixin
-from .untils import get_user_db
-from auth.models import User
 
+from .base_config import current_user
+from .untils import get_user_db
+from .models import User
+from ..tasks.tasks import send_welcome_email
 SECRET = "SECRET"
 
 
@@ -11,8 +13,14 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
 
-    async def on_after_register(self, user: User, request: Optional[Request] = None):
-        print(f"User {user.id} has registered.")
+    async def on_after_register(self, user: User, current_username=Depends(current_user), request: Optional[Request] = None):
+        send_welcome_email(current_username.username)
+        return {
+            "status": 200,
+            "data": f"User {user.id} has registered.",
+            "details": None
+        }
+        # print(f"User {user.id} has registered.")
 
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
