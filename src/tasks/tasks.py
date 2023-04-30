@@ -1,15 +1,14 @@
-import smtplib
 from email.message import EmailMessage
-
 from celery import Celery
+from config import MY_APP_USER, MY_APP_PASSWORD
+import smtplib
 
-from src.config import MY_APP_USER, MY_APP_PASSWORD
 
 SMTP_HOST = 'smtp.gmail.com'
 SMTP_PORT = 465
 
 
-celery = Celery('tasks', broker='redis:localhost:6379')
+celery = Celery('tasks', broker='redis://localhost:6379')
 
 
 def get_email(username: str):
@@ -20,10 +19,7 @@ def get_email(username: str):
 
     email.set_content(
         '<div>'
-        f'<h1 style="color: red;">Здравствуйте, {username}, а вот и ваш отчет. Зацените 😊</h1>'
-        '<img src="https://static.vecteezy.com/system/resources/previews/008/295/031/original/custom-relationship'
-        '-management-dashboard-ui-design-template-suitable-designing-application-for-android-and-ios-clean-style-app'
-        '-mobile-free-vector.jpg" width="600">'
+        f'<h1 style="color: red;">Здравствуйте, {username}, Добро пожаловать) 😊</h1>'
         '</div>',
         subtype='html'
     )

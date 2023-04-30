@@ -6,7 +6,7 @@ class UserRead(schemas.BaseUser[int]):
     email: str
     username: str
     phone_number: str
-    parents_list: int
+    parents_list: Optional[int] = None
     is_active: Optional[bool] = True
     is_superuser: Optional[bool] = True
     is_verified: Optional[bool] = True
